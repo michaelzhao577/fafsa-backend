@@ -1,4 +1,4 @@
-package database
+package load_database
 
 import (
 	"fmt"
@@ -9,9 +9,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/michaelzhao577/fafsa-backend/src/models"
 )
-
-var db *gorm.DB
-var err error
 
 func LoadDB() *gorm.DB {
 	os.Setenv("HOST", "localhost")
@@ -29,7 +26,7 @@ func LoadDB() *gorm.DB {
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s	sslmode=disable password=%s port=%s", host, user, dbName, password, dbPort)
 
 	// open connection to db
-	db, err = gorm.Open("postgres", dbURI)
+	db, err := gorm.Open("postgres", dbURI)
 
 	if err != nil {
 		log.Fatal(err)

@@ -16,10 +16,11 @@ import (
 
 var jwtKey = []byte("secret_key")
 
-var db *gorm.DB
-var err error
+type Database struct {
+	DB *gorm.DB
+}
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (database Database) Login(w http.ResponseWriter, r *http.Request) {
 	// create credentials struct
 	var storedCredentials models.Credentials
 	var givenCredentials models.Credentials
@@ -33,7 +34,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.First(&storedCredentials, params["username"])
+	database.DB.First(&storedCredentials, params["username"])
 
 	verification := security.VerifyPassword(storedCredentials.Password, givenCredentials.Password)
 
@@ -179,7 +180,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 		})
 }
 
-func Register(w http.ResponseWriter, r *http.Request) {
+func (database Database) Register(w http.ResponseWriter, r *http.Request) {
 	// decode username and password from post request body
 	var givenCredentials models.Credentials
 
@@ -194,7 +195,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	givenCredentials.Password = string(hashedPassword)
 
-	createdUser := db.Create(&givenCredentials)
+	createdUser := database.DB.Create(&givenCredentials)
 
 	err = createdUser.Error
 
@@ -205,18 +206,18 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetCredentials(w http.ResponseWriter, r *http.Request) {
+func (database Database) GetCredentials(w http.ResponseWriter, r *http.Request) {
 	var users []models.Credentials
 
-	db.Find(&users)
+	database.DB.Find(&users)
 
 	json.NewEncoder(w).Encode(users)
 }
 
-func HandleRequests(router *mux.Router) {
-	router.HandleFunc("/login", Login).Methods("POST")
+func HandleRequests(router *mux.Router, db Database) {
+	router.HandleFunc("/login", db.Login).Methods("POST")
 	router.HandleFunc("/home", Home).Methods("GET")
 	router.HandleFunc("/refresh", Refresh).Methods("POST")
-	router.HandleFunc("/register", Register).Methods("POST")
-	router.HandleFunc("/credentials", GetCredentials).Methods("GET")
+	router.HandleFunc("/register", db.Register).Methods("POST")
+	router.HandleFunc("/credentials", db.GetCredentials).Methods("GET")
 }

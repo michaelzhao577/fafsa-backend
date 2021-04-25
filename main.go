@@ -5,18 +5,22 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/michaelzhao577/fafsa-backend/src/database"
+	"github.com/michaelzhao577/fafsa-backend/src/load_database"
 	"github.com/michaelzhao577/fafsa-backend/src/routes"
 )
 
 func main() {
-	db := database.LoadDB()
+	dbPointer := load_database.LoadDB()
 
-	defer db.Close()
+	var database = routes.Database{
+		DB: dbPointer,
+	}
+
+	defer database.DB.Close()
 
 	router := mux.NewRouter()
 
-	routes.HandleRequests(router)
+	routes.HandleRequests(router, database)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
