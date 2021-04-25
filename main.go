@@ -10,7 +10,9 @@ import (
 )
 
 func main() {
-	database.LoadDB()
+	db := database.LoadDB()
+
+	defer db.Close()
 
 	router := mux.NewRouter()
 

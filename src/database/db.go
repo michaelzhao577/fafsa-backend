@@ -13,7 +13,7 @@ import (
 var db *gorm.DB
 var err error
 
-func LoadDB() {
+func LoadDB() *gorm.DB {
 	os.Setenv("HOST", "localhost")
 	os.Setenv("DBPORT", "5432")
 	os.Setenv("USER", "postgres")
@@ -26,10 +26,11 @@ func LoadDB() {
 	password := os.Getenv("PASSWORD")
 
 	// database connection
-	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s 	sslmode=disable password=%s port=%s", host, user, dbName, password, dbPort)
+	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s	sslmode=disable password=%s port=%s", host, user, dbName, password, dbPort)
 
 	// open connection to db
 	db, err = gorm.Open("postgres", dbURI)
+
 	if err != nil {
 		log.Fatal(err)
 	} else {
@@ -41,4 +42,6 @@ func LoadDB() {
 
 	// make migration to the db if they have not already 	been created
 	db.AutoMigrate(&models.Credentials{})
+
+	return db
 }
