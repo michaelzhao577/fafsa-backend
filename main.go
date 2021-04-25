@@ -1,21 +1,20 @@
 package main
 
 import (
-	"fafsa-backend/src/handlers"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/michaelzhao577/fafsa-backend/src/database"
+	"github.com/michaelzhao577/fafsa-backend/src/routes"
 )
 
 func main() {
-	handleRequests()
-}
+	database.LoadDB()
 
-func handleRequests() {
-	http.HandleFunc("/login", handlers.Login)
-	http.HandleFunc("/home", handlers.Home)
-	http.HandleFunc("/refresh", handlers.Refresh)
-	http.HandleFunc("/register", handlers.Register)
-	http.HandleFunc("/users", handlers.GetUsers)
+	router := mux.NewRouter()
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	routes.HandleRequests(router)
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
